@@ -1,6 +1,6 @@
 create database pizza;
 use  pizza;
-select * from orders;
+Select * from orders;
 select * from pizza_types;
 select * from order_details;
 select * from pizzas;
@@ -66,7 +66,35 @@ select count(o.order_id),hour(order_time),order_date from
  o.order_id =od.order_id
  group by order_date,hour(order_time)
 
+-- 3. Join relevant tables to find the category-wise distribution of pizzas.
+ select pt.category , count(name) as distribution_pizzas  from 
+ pizza_types as pt
+ join 
+ pizzas as p on 
+ pt.pizza_type_id = p.pizza_type_id
+ group by 1;
+ 
+ -- 4. Group the orders by date and calculate the average number of pizzas ordered per day.
+with cte as (select sum(od.quantity) as total_order ,o.order_date
+from orders as o 
+join 
+order_details as od 
+on o.order_id = od.order_id 
+group by 2)
 
+select round(avg(total_order),2) average_pizza_order_perday from cte ;
+
+-- 5. Determine the top 3 most ordered pizza types based on revenue.
+
+select sum(od.quantity*p.price) , pt.name from
+order_details as od 
+join
+pizzas as p on od.pizza_id  = p.pizza_id 
+join 
+pizza_types as pt 
+on
+pt.pizza_type_id =p.pizza_type_id
+group by 2 order by 1 desc limit 3;
 
 
 
